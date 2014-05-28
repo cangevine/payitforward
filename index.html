@@ -1,28 +1,187 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-        <link rel="stylesheet" type="text/css" href="css/index.css" />
-        <title>Barcode Scanner Demo</title>
-    </head>
-    <body>
-        <div class="app">
-            <h1>PhoneGap Test...</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
-            <p><a href="#" class="topcoat-button" id="scan">SCAN</a></p>
-            <p><a href="#" class="topcoat-button" id="encode">ENCODE</a></p>
-            <p id="info"></p>
-        </div>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="barcodescanner.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-    </body>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Pay it forward</title>
+		<link rel="stylesheet" href="themes/default.min.css" />
+		<link rel="stylesheet" href="themes/styling.css" />
+		<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" />
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+		<script src="phonegap.js"></script>
+		<script src="barcodescanner.js"></script>
+		<script src="js/index.js"></script>
+		
+	</head>
+	<body>
+		<div data-role="page" data-theme="a" id="home">
+			<div id="edit">
+				<div data-role="content" data-theme="a">
+				<!--<p>Click here to go <a href="about">back to the home page</a>.</p>-->
+					<fieldset data-role="controlgroup"  data-type="horizontal" data-role="fieldcontain" id = "thisOne">
+						<h1 id="Title">Pay It Forward</h1>
+						<h3> Make A New Username </h3>
+						<div id="loginInfo">
+							Username: <input type="text" id="username"/><br>
+						</div>
+						<div id="createBtn">
+							<a data-role="button">Create</a>
+						</div>
+					</fieldset>
+				</div>
+				<div id="tag">
+					CS2 Productions &reg;
+				</div>
+			</div>
+				<div id="scanResult">
+				
+				</div>
+		</div>
+		
+		<div data-role="page" data-theme="a" id="about">
+			<div data-role="header" data-position="inline">
+				<h1>Instructions</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<p>Welcome <span id="username_span"></span>, you need to search throughout our Friends' Central campus to find different QR codes and scan 
+				them so that you can receive points. At the end of the scavenger hunt, the 
+				more points you have, the more candy you will get!</p>
+				<div>
+					<a id="btn" href="#scanSuccess" data-role="button">SCAN <br/> QR CODE</a>
+					<a id="cshIN" href="#cashIn" data-role="button">CASH IN</a>
+					<p id="pTotal">Point Total: <span id="pTotals">0</span>/5<p>
+				</div>
+			</div>
+			<div id="tag">
+				CS2 Productions &reg;
+			</div>
+		</div>
+		<div data-role="page" data-theme="a" id="scanSuccess">
+			<div data-role="header" data-position="inline">
+				<h1>Location # 1</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<h2>Success!</h2>
+				<p>Your Point Total is now <span id="pTotals1"></span></p>
+				<a id="btn" href="#about" data-role="button">Go Back</a>
+			</div>
+			<div id="tag">
+					CS2 Productions &reg;
+			</div>
+		</div>
+		<div data-role="page" data-theme="a" id="cashIn">
+			<div data-role="header" data-position="inline">
+				<h1>Let's Cash Out!</h1>
+			</div>
+			<div data-role="content" data-theme="a">
+				<div id="userID">
+					<h1 class="cheese">USER PIN:<h1 id="cashInID"></h1></h1>
+				</div>
+				<p>In order to cash out, you must go to ___ and enter your user PIN
+				number into our machine, and you will be rewarded with candy!</p>
+				<a id="btn" href="#about" data-role="button">Go Back</a>
+			</div>
+			<div id="tag">
+				CS2 Productions &reg;
+			</div>
+		</div>
+		<!--This is where it will open us the camera -- need to create -->
+		<script>
+		function readMe(){
+			var x = document.getElementById("username");
+			alert(x);
+		}
+		$(document).ready(function() {
+			//var app = null;
+			app.initialize();
+			
+			
+			var uuid = "fake123";
+			var userID = 0;
+			var userPIN = 0;
+			var locationID = 29;
+			if (app) {
+				//device ready initializer
+				uuid = device.uuid;
+			}
+			$("#createBtn").on("tap", function() {
+				var x = document.getElementById("username");
+				var usr = $("#username").val();
+				$("#username_span").html(usr);
+			//	$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
+			
+				$.ajax({
+					type: "POST",
+					url: "http://cs1.friendscentral.org/payitforward/users/create.php",
+					data: { username: usr}
+					}).success(function(data) {
+						alert(data);
+						if (data == "failure") {
+							alert(" OH NO!!!");
+						} else {
+							//var tmp = data.split(",");
+							userID = data;
+							userPin();
+							$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
+						}
+					}).error(function() {
+						alert("could not work...");
+				});
+			});
+			var locId = getParameterByName('locId');
+			function getParameterByName(name) {
+				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+				results = regex.exec(location.search);
+				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+			}
+			function totals(){
+				$.ajax({
+				type:"Get",
+				url: "http://cs1.friendscentral.org/payitforward/submission/tally_sub.php",
+				data: { userID: userID}
+				}).success(function(data) {
+					var pointTally = data;
+					$("#pTotals").html(pointTally);
+					$("#pTotals1").html(pointTally);
+				}).error(function() {
+					alert("could not work...sorry");
+				});
+			};
+			function userPin(){
+				$.ajax({
+				type:"Post",
+				url: "http://cs1.friendscentral.org/payitforward/users/create.php",
+				data: { userID: userID}
+				}).success(function(data){
+					$("#cashInID").html(userID);
+				}).error(function() {
+					alert("could not work...sorry");
+				});
+			};
+			$("#btn").on("tap", function() {
+				app.scan();
+			});
+			
+			function sendQRToDB(locNum) {
+				$.ajax({
+				type:"Post",
+				url: "http://cs1.friendscentral.org/payitforward/submission/submit.php",
+				data: { userID: userID, locationID: locNum}
+				}).success(function(data){
+					if(data == "You have already scanned this"){
+						alert("You already scanned this QR Code");
+					}else{
+						alert("Congratulations, you earned a point!");
+						$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
+						totals();
+					}
+				});
+			}
+			
+		});
+		</script>
+	</body>
 </html>
