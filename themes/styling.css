@@ -1,0 +1,23 @@
+
+button > a {
+	color: black;
+}
+button > a:hover {
+	text-decoration: none;
+}
+div#userID{
+	padding:8px;
+	border:10px solid #9ec551;
+	background-color:#fff;
+	width:250px;
+	height:120px;
+	display:inline-block;
+	vertical-align:top;
+}
+p#pTotal{
+	font-size:1.5em;
+	
+}
+*{
+	text-align:center;
+}
