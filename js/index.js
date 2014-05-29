@@ -97,8 +97,11 @@ var app = {
         document.getElementById('scan').addEventListener('click', this.scan, false);
         document.getElementById('encode').addEventListener('click', this.encode, false);
 		
+		$("#createBtn").on("tap", this.createUser);
+		$("#createBtn").on("tap", app.createUser);
 		document.getElementById('createBtn').addEventListener('click', this.createUser, false);
 		document.getElementById('btn').addEventListener('click', this.scan, false);
+		this.bound = true;
 		app.bound = true;
     },
 
