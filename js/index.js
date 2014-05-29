@@ -136,7 +136,7 @@ var app = {
                  "cancelled: " + result.cancelled + "\n");
 			
             //document.getElementById("scanResult").innerHTML = result.text;
-			sendQRToDB(result.text);
+			this.sendQRToDB(result.text);
             console.log(result);
 
         }, function (error) { 
