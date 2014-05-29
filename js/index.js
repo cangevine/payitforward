@@ -7,6 +7,7 @@ var app = {
 		this.userID = 0;
 		this.userPIN = 0;
 		this.locationID = 29;
+		this.bound = false;
 		
         this.bindEvents();
 		
@@ -23,14 +24,14 @@ var app = {
 		$.ajax({
 		type:"Post",
 		url: "http://cs1.friendscentral.org/payitforward/submission/submit.php",
-		data: { userID: this.userID, locationID: locNum}
+		data: { userID: app.userID, locationID: locNum}
 		}).success(function(data){
 			if(data == "You have already scanned this"){
 				alert("You already scanned this QR Code");
 			}else{
 				alert("Congratulations, you earned a point!");
 				$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
-				this.totals();
+				app.totals();
 			}
 		});
 	},
@@ -52,8 +53,8 @@ var app = {
 				} else {
 					//var tmp = data.split(",");
 					userID = data;
-					this.userID = data;
-					userPin();
+					app.userID = data;
+					app.userPin();
 					$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
 				}
 			}).error(function() {
@@ -65,7 +66,7 @@ var app = {
 		$.ajax({
 		type:"GET",
 		url: "http://cs1.friendscentral.org/payitforward/submission/tally_sub.php",
-		data: { userID: this.userID}
+		data: { userID: app.userID}
 		}).success(function(data) {
 			var pointTally = data;
 			$("#pTotals").html(pointTally);
@@ -79,9 +80,9 @@ var app = {
 		$.ajax({
 		type:"POST",
 		url: "http://cs1.friendscentral.org/payitforward/users/create.php",
-		data: { userID: this.userID}
+		data: { userID: app.userID}
 		}).success(function(data){
-			$("#cashInID").html(this.userID);
+			$("#cashInID").html(app.userID);
 		}).error(function() {
 			alert("could not work...sorry");
 		});
@@ -98,6 +99,7 @@ var app = {
 		
 		document.getElementById('createBtn').addEventListener('click', this.createUser, false);
 		document.getElementById('btn').addEventListener('click', this.scan, false);
+		app.bound = true;
     },
 
     // deviceready Event Handler
@@ -136,7 +138,7 @@ var app = {
                  "cancelled: " + result.cancelled + "\n");
 			
             //document.getElementById("scanResult").innerHTML = result.text;
-			this.sendQRToDB(result.text);
+			app.sendQRToDB(result.text);
             console.log(result);
 
         }, function (error) { 

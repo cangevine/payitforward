@@ -20,9 +20,6 @@
        <param name="domain" value="http://debug.phonegap.com"/>
        <param name="key" value="payitforwardcs2"/>
     </feature>
-	
-	<access origin="*" />
-	<access origin="http://friendscentral.org" subdomains="true" />
 
     <preference name="phonegap-version" value="3.1.0" />
     <preference name="orientation"      value="default" />
@@ -57,4 +54,7 @@
     <gap:splash src="res/screen/windows-phone/screen-portrait.jpg" gap:platform="winphone" />
 
     <!-- content src="http://www.w3.org/2010/05/video/mediaevents.html" / -->
+	
+	<access origin="*" />
+	<access origin="http://friendscentral.org" subdomains="true" />
 </widget>
