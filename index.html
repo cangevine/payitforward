@@ -7,7 +7,6 @@
 		<link rel="stylesheet" href="themes/default.min.css" />
 		<link rel="stylesheet" href="themes/styling.css" />
 		<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
-		<script src="http://debug.phonegap.com/target/target-script-min.js#payitforwardcs2"></script>
 		<script src="js/jquery.js"></script>
 		<script src="js/jquery.mobile-1.4.2.min.js"></script>
 		<script src="cordova.js"></script>
@@ -89,100 +88,11 @@
 		</div>
 		<!--This is where it will open us the camera -- need to create -->
 		<script>
-		function readMe(){
-			var x = document.getElementById("username");
-			alert(x);
-		}
 		$(document).ready(function() {
 			console.log("Document is ready!");
 			//var app = null;
 			app.initialize();
 			$.mobile.changePage( "#home" );
-			
-			
-			var uuid = "fake123";
-			var userID = 0;
-			var userPIN = 0;
-			var locationID = 29;
-			if (app) {
-				//device ready initializer
-				uuid = device.uuid;
-			}
-			$("#createBtn").on("tap", function() {
-				var x = document.getElementById("username");
-				var usr = $("#username").val();
-				$("#username_span").html(usr);
-			//	$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
-			
-				$.ajax({
-					type: "POST",
-					url: "http://cs1.friendscentral.org/payitforward/users/create.php",
-					data: { username: usr}
-					}).success(function(data) {
-						alert(data);
-						if (data == "failure") {
-							alert(" OH NO!!!");
-						} else {
-							//var tmp = data.split(",");
-							userID = data;
-							userPin();
-							$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
-						}
-					}).error(function() {
-						alert("could not work...");
-				});
-			});
-			var locId = getParameterByName('locId');
-			function getParameterByName(name) {
-				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-				results = regex.exec(location.search);
-				return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-			}
-			function totals(){
-				$.ajax({
-				type:"Get",
-				url: "http://cs1.friendscentral.org/payitforward/submission/tally_sub.php",
-				data: { userID: userID}
-				}).success(function(data) {
-					var pointTally = data;
-					$("#pTotals").html(pointTally);
-					$("#pTotals1").html(pointTally);
-				}).error(function() {
-					alert("could not work...sorry");
-				});
-			};
-			function userPin(){
-				$.ajax({
-				type:"Post",
-				url: "http://cs1.friendscentral.org/payitforward/users/create.php",
-				data: { userID: userID}
-				}).success(function(data){
-					$("#cashInID").html(userID);
-				}).error(function() {
-					alert("could not work...sorry");
-				});
-			};
-			$("#btn").on("tap", function() {
-				app.scan();
-			});
-			
-			function sendQRToDB(locNum) {
-				$.ajax({
-				type:"Post",
-				url: "http://cs1.friendscentral.org/payitforward/submission/submit.php",
-				data: { userID: userID, locationID: locNum}
-				}).success(function(data){
-					if(data == "You have already scanned this"){
-						alert("You already scanned this QR Code");
-					}else{
-						alert("Congratulations, you earned a point!");
-						$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
-						totals();
-					}
-				});
-			}
-			
 		});
 		</script>
 	</body>

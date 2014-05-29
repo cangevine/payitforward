@@ -3,8 +3,90 @@ var app = {
     initialize: function() {
 		$.support.cors = true;
 		$.mobile.allowCrossDomainPages = true;
+		
+		this.userID = 0;
+		this.userPIN = 0;
+		this.locationID = 29;
+		
         this.bindEvents();
+		
+		var locId = getParameterByName('locId');
+		function getParameterByName(name) {
+			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(location.search);
+			return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+		}
     },
+	
+	sendQRToDB: function(locNum) {
+		$.ajax({
+		type:"Post",
+		url: "http://cs1.friendscentral.org/payitforward/submission/submit.php",
+		data: { userID: this.userID, locationID: locNum}
+		}).success(function(data){
+			if(data == "You have already scanned this"){
+				alert("You already scanned this QR Code");
+			}else{
+				alert("Congratulations, you earned a point!");
+				$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
+				this.totals();
+			}
+		});
+	},
+	
+	createUser: function() {
+		var x = document.getElementById("username");
+		var usr = $("#username").val();
+		$("#username_span").html(usr);
+	//	$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
+	
+		$.ajax({
+			type: "POST",
+			url: "http://cs1.friendscentral.org/payitforward/users/create.php",
+			data: { username: usr}
+			}).success(function(data) {
+				alert(data);
+				if (data == "failure") {
+					alert("Oops! We hit an error.");
+				} else {
+					//var tmp = data.split(",");
+					userID = data;
+					this.userID = data;
+					userPin();
+					$.mobile.changePage( "#about", { transition: "pop", changeHash: false });
+				}
+			}).error(function() {
+				alert("could not work...");
+		});
+	},
+	
+	totals: function() {
+		$.ajax({
+		type:"GET",
+		url: "http://cs1.friendscentral.org/payitforward/submission/tally_sub.php",
+		data: { userID: this.userID}
+		}).success(function(data) {
+			var pointTally = data;
+			$("#pTotals").html(pointTally);
+			$("#pTotals1").html(pointTally);
+		}).error(function() {
+			alert("could not work...sorry");
+		});
+	},
+	
+	userPin: function() {
+		$.ajax({
+		type:"POST",
+		url: "http://cs1.friendscentral.org/payitforward/users/create.php",
+		data: { userID: this.userID}
+		}).success(function(data){
+			$("#cashInID").html(this.userID);
+		}).error(function() {
+			alert("could not work...sorry");
+		});
+	},
+	
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
@@ -13,6 +95,9 @@ var app = {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         document.getElementById('scan').addEventListener('click', this.scan, false);
         document.getElementById('encode').addEventListener('click', this.encode, false);
+		
+		document.getElementById('createBtn').addEventListener('click', this.createUser, false);
+		document.getElementById('btn').addEventListener('click', this.scan, false);
     },
 
     // deviceready Event Handler
@@ -22,6 +107,7 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
 		console.log("Anyone home??? Device is now ready...!");
+		this.uuid = device.uuid;
     },
 
     // Update DOM on a Received Event
@@ -49,18 +135,9 @@ var app = {
                  "format: " + result.format + "\n" +
                  "cancelled: " + result.cancelled + "\n");
 			
-            alert("We got a barcode\n" + 
-            "Result: " + result.text + "\n" + 
-            "Format: " + result.format + "\n" + 
-            "Cancelled: " + result.cancelled);  
             //document.getElementById("scanResult").innerHTML = result.text;
 			sendQRToDB(result.text);
             console.log(result);
-            /*
-            if (args.format == "QR_CODE") {
-                window.plugins.childBrowser.showWebPage(args.text, { showLocationBar: false });
-            }
-            */
 
         }, function (error) { 
             console.log("Scanning failed: ", error); 
